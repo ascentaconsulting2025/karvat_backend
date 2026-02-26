@@ -17,7 +17,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "https://admin.gpkarvat.in",
-      "https://www.gpkarvat.in/",
+      "https://www.gpkarvat.in",
       "https://gpkarvat.in",
     ],
     credentials: true,
@@ -160,3 +160,4 @@ app.listen(PORT, HOST, () => {
 });
 
 module.exports = app;
+
