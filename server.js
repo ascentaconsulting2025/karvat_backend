@@ -16,9 +16,9 @@ app.use(
     origin: process.env.CORS_ORIGINS?.split(",") || [
       "http://localhost:3000",
       "http://localhost:3001",
-      "https://admin.gpkahir.in",
-      "https://www.gpkahir.in",
-      "https://gpkahir.in",
+      "https://admin.gpkarvat.in",
+      "https://www.gpkarvat.in/",
+      "https://gpkarvat.in",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
