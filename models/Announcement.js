@@ -16,6 +16,7 @@ const Announcement = {
       fileSize: row.file_size,
       uploadDate: row.upload_date,
       isActive: row.is_active,
+      category: row.category,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }));
@@ -46,7 +47,7 @@ const Announcement = {
             announcement.fileSize ? String(announcement.fileSize) : null,
             announcement.uploadDate || new Date(),
             announcement.isActive !== undefined ? announcement.isActive : true,
-            announcement.category || "general",
+            announcement.category || "इतर",
             announcement.id,
           ]);
         } else {
@@ -65,7 +66,7 @@ const Announcement = {
             announcement.fileSize ? String(announcement.fileSize) : null,
             announcement.uploadDate || new Date(),
             announcement.isActive !== undefined ? announcement.isActive : true,
-            announcement.category || "general",
+            announcement.category || "इतर",
             announcement.order || 0,
           ]);
         }

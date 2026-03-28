@@ -24,12 +24,15 @@ const documentFileFilter = (req, file, cb) => {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
     "application/vnd.ms-excel", // .xls
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    "image/jpeg",
+    "image/png",
+    "image/webp",
   ];
 
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  if (allowedMimeTypes.includes(file.mimetype) || file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new Error("Only PDF, Word, and Excel files are allowed!"), false);
+    cb(new Error("Only PDF, Word, Excel, and Image files are allowed!"), false);
   }
 };
 

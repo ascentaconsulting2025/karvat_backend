@@ -28,11 +28,15 @@ const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
+      
       const isAllowed = allowedOrigins.indexOf(origin) !== -1 || 
                        allowedOrigins.includes("*") ||
                        origin.endsWith(".gpkarvat.in") ||
-                       origin.endsWith(".gpkahir.in");
+                       origin.endsWith(".gpkahir.in") ||
+                       /^http:\/\/localhost:\d+$/.test(origin); // Allow any localhost port in dev
+                       
       if (isAllowed) {
         callback(null, true);
       } else {
@@ -42,6 +46,8 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "X-Custom-Header"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
     optionsSuccessStatus: 200,
   })
 );
@@ -123,6 +129,8 @@ const historicalRoutes = require("./routes/historical");
 const grampanchayatRoutes = require("./routes/grampanchayat");
 const websiteDataRoutes = require("./routes/websiteData");
 const announcementsRoutes = require("./routes/announcements");
+const taxPaymentRoutes = require("./routes/taxPayment");
+const projectsRoutes = require("./routes/projects");
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -137,6 +145,8 @@ app.use("/api/historical", historicalRoutes);
 app.use("/api/grampanchayat", grampanchayatRoutes);
 app.use("/api/website", websiteDataRoutes);
 app.use("/api/announcements", announcementsRoutes);
+app.use("/api/tax-payment", taxPaymentRoutes);
+app.use("/api/projects", projectsRoutes);
 
 // Health Check
 app.get("/", (req, res) => {
@@ -151,6 +161,7 @@ app.get("/", (req, res) => {
       certificates: "/api/certificates",
       images: "/api/images",
       announcements: "/api/announcements",
+      projects: "/api/projects",
     },
   });
 });

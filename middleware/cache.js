@@ -11,16 +11,19 @@
  */
 const cacheMiddleware = (maxAge = 600) => {
   return (req, res, next) => {
-    // Only cache successful GET requests
-    if (req.method === 'GET') {
+    // Only cache successful GET requests without authentication
+    if (req.method === 'GET' && !req.headers.authorization) {
       // Public cache: CDN can cache, expires in maxAge seconds
       res.set(
         'Cache-Control',
         `public, max-age=${maxAge}, s-maxage=${maxAge}`
       );
       
-      // Add ETag for efficient cache validation
-      res.set('Vary', 'Accept-Encoding');
+      // Add ETag and Vary for efficient cache validation and CORS compatibility
+      res.set('Vary', 'Accept-Encoding, Origin');
+    } else if (req.headers.authorization) {
+      // Never cache authenticated requests
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
     next();
   };
