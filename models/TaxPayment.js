@@ -124,6 +124,18 @@ const TaxPayment = {
     const query = "DELETE FROM tax_payment";
     await pool.query(query);
     return true;
+  },
+
+  // Delete only the image
+  deleteImage: async (id) => {
+    const query = `
+      UPDATE tax_payment
+      SET qr_file_path = NULL, qr_file_url = NULL, qr_file_type = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+    `;
+    await pool.query(query, [id]);
+    return true;
   }
 };
 

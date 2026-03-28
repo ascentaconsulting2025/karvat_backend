@@ -95,22 +95,30 @@ router.post("/upload", auth, checkWritePermission("task10"), upload.single("file
   }
 });
 
-// @route   DELETE /api/tax-payment
-// @desc    Delete tax payment info
+// @route   DELETE /api/tax-payment/image
+// @desc    Delete only the QR code image
 // @access  Private
-router.delete("/", auth, checkWritePermission("task10"), async (req, res) => {
+router.delete("/image", auth, checkWritePermission("task10"), async (req, res) => {
   try {
-    await TaxPayment.delete();
+    const info = await TaxPayment.find();
+    if (!info) {
+      return res.status(404).json({
+        success: false,
+        message: "Tax payment info not found",
+      });
+    }
+
+    await TaxPayment.deleteImage(info.id);
 
     res.json({
       success: true,
-      message: "Tax payment info deleted successfully",
+      message: "Image deleted successfully",
     });
   } catch (error) {
-    console.error("Delete tax payment info error:", error);
+    console.error("Delete tax payment image error:", error);
     res.status(500).json({
       success: false,
-      message: "Error deleting tax payment info",
+      message: "Error deleting image",
       error: error.message,
     });
   }
