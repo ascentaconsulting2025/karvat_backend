@@ -18,7 +18,6 @@ app.use(compression());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // Robust CORS configuration
-// Robust CORS configuration
 const defaultOrigins = [
   "https://admin.gpkarvat.in",
   "https://www.gpkarvat.in",
@@ -39,7 +38,13 @@ app.use(
     origin: function (origin, callback) {
       // allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+      
+      const isAllowed = allowedOrigins.indexOf(origin) !== -1 || 
+                       allowedOrigins.includes("*") ||
+                       origin.endsWith(".gpkarvat.in") ||
+                       origin.endsWith(".gpkahir.in");
+
+      if (isAllowed) {
         callback(null, true);
       } else {
         console.warn(`CORS blocked for origin: ${origin}`);
