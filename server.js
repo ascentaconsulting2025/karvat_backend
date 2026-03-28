@@ -18,15 +18,21 @@ app.use(compression());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // Robust CORS configuration
-const allowedOrigins = process.env.CORS_ORIGINS 
+// Robust CORS configuration
+const defaultOrigins = [
+  "https://admin.gpkarvat.in",
+  "https://www.gpkarvat.in",
+  "https://gpkahir.in",
+  "http://localhost:3000",
+  "http://localhost:3001",
+];
+
+const envOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(",").map(origin => origin.trim()) 
-  : [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "https://admin.gpkarvat.in",
-      "https://www.gpkarvat.in",
-      "https://gpkahir.in",
-    ];
+  : [];
+
+// Merge and deduplicate
+const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
 app.use(
   cors({
