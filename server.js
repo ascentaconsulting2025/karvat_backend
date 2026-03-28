@@ -8,15 +8,6 @@ require("dotenv").config();
 const app = express();
 
 // Middleware
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: false, // Disable CSP for now to avoid issues, or configure properly
-  })
-);
-app.use(compression());
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
-
 // Robust CORS configuration
 const defaultOrigins = [
   "https://admin.gpkarvat.in",
@@ -33,17 +24,15 @@ const envOrigins = process.env.CORS_ORIGINS
 // Merge and deduplicate
 const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
+// 1. CORS Middleware FIRST
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
       const isAllowed = allowedOrigins.indexOf(origin) !== -1 || 
                        allowedOrigins.includes("*") ||
                        origin.endsWith(".gpkarvat.in") ||
                        origin.endsWith(".gpkahir.in");
-
       if (isAllowed) {
         callback(null, true);
       } else {
@@ -53,9 +42,20 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200,
   })
 );
+
+// 2. Helmet and other middleware
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Disable CSP for now to avoid issues, or configure properly
+  })
+);
+app.use(compression());
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
