@@ -3,11 +3,13 @@ const router = express.Router();
 const Certificate = require("../models/Certificate");
 const auth = require("../middleware/auth");
 const { checkWritePermission } = require("../middleware/checkPermission");
+const { cacheMiddleware } = require("../middleware/cache");
 
 // @route   GET /api/certificates
 // @desc    Get all certificates
 // @access  Public
-router.get("/", async (req, res) => {
+// @cache   1 minute (60 seconds) for faster testing/updates
+router.get("/", cacheMiddleware(60), async (req, res) => {
   try {
     const certificates = await Certificate.findAll();
 

@@ -3,11 +3,13 @@ const router = express.Router();
 const Document = require("../models/Document");
 const auth = require("../middleware/auth");
 const { checkWritePermission } = require("../middleware/checkPermission");
+const { cacheMiddleware } = require("../middleware/cache");
 
 // @route   GET /api/documents
 // @desc    Get all documents
 // @access  Public
-router.get("/", async (req, res) => {
+// @cache   10 minutes (600 seconds)
+router.get("/", cacheMiddleware(600), async (req, res) => {
   try {
     const documents = await Document.findAll();
 

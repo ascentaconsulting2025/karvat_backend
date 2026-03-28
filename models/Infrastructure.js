@@ -49,22 +49,39 @@ const Infrastructure = {
       );
       let currentOrder = maxOrderResult.rows[0].max_order + 1;
 
-      // Insert new infrastructure without deleting existing ones
-      const insertPromises = infrastructureList.map((item) => {
-        const query = `
-          INSERT INTO infrastructure (subcategory, facility, count, "order")
-          VALUES ($1, $2, $3, $4)
-          RETURNING *
-        `;
-        return client.query(query, [
-          item.subcategory,
-          item.facility,
-          item.count,
-          currentOrder++,
-        ]);
+      const upsertPromises = infrastructureList.map((item) => {
+        if (item.id) {
+          // Update existing
+          const query = `
+            UPDATE infrastructure 
+            SET subcategory = $1, facility = $2, count = $3, 
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $4
+            RETURNING *
+          `;
+          return client.query(query, [
+            item.subcategory,
+            item.facility,
+            item.count,
+            item.id,
+          ]);
+        } else {
+          // Insert new
+          const query = `
+            INSERT INTO infrastructure (subcategory, facility, count, "order")
+            VALUES ($1, $2, $3, $4)
+            RETURNING *
+          `;
+          return client.query(query, [
+            item.subcategory,
+            item.facility,
+            item.count,
+            currentOrder++,
+          ]);
+        }
       });
 
-      const results = await Promise.all(insertPromises);
+      const results = await Promise.all(upsertPromises);
       await client.query("COMMIT");
 
       return results.map((r) => {

@@ -6,11 +6,13 @@ const Image = require("../models/Image");
 const Infrastructure = require("../models/Infrastructure");
 const HistoricalData = require("../models/HistoricalData");
 const GrampanchayatInfo = require("../models/GrampanchayatInfo");
+const { cacheMiddleware } = require("../middleware/cache");
 
 // @route   GET /api/website/all
 // @desc    Get all website data for static site
 // @access  Public
-router.get("/all", async (req, res) => {
+// @cache   15 minutes (900 seconds) - comprehensive data
+router.get("/all", cacheMiddleware(900), async (req, res) => {
   try {
     const [
       representatives,
@@ -52,7 +54,8 @@ router.get("/all", async (req, res) => {
 // @route   GET /api/website/officials
 // @desc    Get officials for homepage
 // @access  Public
-router.get("/officials", async (req, res) => {
+// @cache   10 minutes (600 seconds)
+router.get("/officials", cacheMiddleware(600), async (req, res) => {
   try {
     const representatives = await Representative.findAll();
 
@@ -73,7 +76,8 @@ router.get("/officials", async (req, res) => {
 // @route   GET /api/website/gallery
 // @desc    Get gallery images
 // @access  Public
-router.get("/gallery", async (req, res) => {
+// @cache   10 minutes (600 seconds)
+router.get("/gallery", cacheMiddleware(600), async (req, res) => {
   try {
     // Get all gallery images (Image.findAll already filters by isActive)
     const images = await Image.findAll("gallery");

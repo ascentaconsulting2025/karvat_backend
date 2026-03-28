@@ -28,25 +28,50 @@ const Announcement = {
     try {
       await client.query("BEGIN");
 
-      const insertPromises = announcements.map((announcement) => {
-        const query = `
-          INSERT INTO announcements (
-            title, file_path, file_type, file_size, upload_date, is_active
-          )
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING *
-        `;
-        return client.query(query, [
-          announcement.title,
-          announcement.filePath,
-          announcement.fileType,
-          announcement.fileSize || null,
-          announcement.uploadDate || new Date(),
-          announcement.isActive !== undefined ? announcement.isActive : true,
-        ]);
+      const upsertPromises = announcements.map((announcement) => {
+        if (announcement.id) {
+          // Update existing
+          const query = `
+            UPDATE announcements 
+            SET title = $1, file_path = $2, file_type = $3, file_size = $4, 
+                upload_date = $5, is_active = $6, category = $7, 
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = $8
+            RETURNING *
+          `;
+          return client.query(query, [
+            announcement.title,
+            announcement.filePath,
+            announcement.fileType,
+            announcement.fileSize ? String(announcement.fileSize) : null,
+            announcement.uploadDate || new Date(),
+            announcement.isActive !== undefined ? announcement.isActive : true,
+            announcement.category || "general",
+            announcement.id,
+          ]);
+        } else {
+          // Insert new
+          const query = `
+            INSERT INTO announcements (
+              title, file_path, file_type, file_size, upload_date, is_active, category, "order"
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING *
+          `;
+          return client.query(query, [
+            announcement.title,
+            announcement.filePath,
+            announcement.fileType,
+            announcement.fileSize ? String(announcement.fileSize) : null,
+            announcement.uploadDate || new Date(),
+            announcement.isActive !== undefined ? announcement.isActive : true,
+            announcement.category || "general",
+            announcement.order || 0,
+          ]);
+        }
       });
 
-      const results = await Promise.all(insertPromises);
+      const results = await Promise.all(upsertPromises);
       await client.query("COMMIT");
 
       return results.map((r) => {
@@ -59,6 +84,8 @@ const Announcement = {
           fileSize: row.file_size,
           uploadDate: row.upload_date,
           isActive: row.is_active,
+          category: row.category,
+          order: row.order,
         };
       });
     } catch (error) {

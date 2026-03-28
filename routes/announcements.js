@@ -7,11 +7,13 @@ const {
   documentUpload,
   uploadFileToSupabase,
 } = require("../middleware/upload");
+const { cacheMiddleware } = require("../middleware/cache");
 
 // @route   GET /api/announcements
 // @desc    Get all announcements
 // @access  Public
-router.get("/", async (req, res) => {
+// @cache   1 minute (60 seconds) for faster testing/updates
+router.get("/", cacheMiddleware(60), async (req, res) => {
   try {
     const announcements = await Announcement.findAll();
 
