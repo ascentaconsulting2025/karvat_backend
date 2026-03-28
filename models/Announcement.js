@@ -5,7 +5,7 @@ const Announcement = {
   // Get all active announcements
   findAll: async () => {
     const query =
-      "SELECT * FROM announcements WHERE is_active = true ORDER BY upload_date DESC, created_at DESC";
+      "SELECT * FROM announcements WHERE is_active IS NOT FALSE ORDER BY upload_date DESC, created_at DESC";
     const result = await pool.query(query);
 
     return result.rows.map((row) => ({

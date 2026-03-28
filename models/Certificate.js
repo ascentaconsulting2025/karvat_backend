@@ -4,7 +4,7 @@ const Certificate = {
   // Get all active certificates
   findAll: async () => {
     const query =
-      'SELECT * FROM certificates WHERE is_active = true ORDER BY "order"';
+      'SELECT * FROM certificates WHERE is_active IS NOT FALSE ORDER BY "order"';
     const result = await pool.query(query);
 
     // Transform data to match expected format
