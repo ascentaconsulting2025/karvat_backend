@@ -113,6 +113,16 @@ CREATE TABLE IF NOT EXISTS historical_places (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Historical awards table (Marathi-only)
+CREATE TABLE IF NOT EXISTS historical_awards (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    award_name VARCHAR(255) NOT NULL,
+    award_description TEXT,
+    year VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Grampanchayat info table (Marathi-only)
 CREATE TABLE IF NOT EXISTS grampanchayat_info (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -136,7 +146,7 @@ CREATE TABLE IF NOT EXISTS announcements (
     file_path TEXT,
     file_url TEXT,
     file_type VARCHAR(50),
-    file_size BIGINT,
+    file_size VARCHAR(50),
     upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     category VARCHAR(100) DEFAULT 'general',
     is_active BOOLEAN DEFAULT true,
@@ -178,6 +188,7 @@ DROP TRIGGER IF EXISTS update_hero_images_updated_at ON hero_images;
 DROP TRIGGER IF EXISTS update_infrastructure_updated_at ON infrastructure;
 DROP TRIGGER IF EXISTS update_historical_events_updated_at ON historical_events;
 DROP TRIGGER IF EXISTS update_historical_places_updated_at ON historical_places;
+DROP TRIGGER IF EXISTS update_historical_awards_updated_at ON historical_awards;
 DROP TRIGGER IF EXISTS update_grampanchayat_info_updated_at ON grampanchayat_info;
 DROP TRIGGER IF EXISTS update_announcements_updated_at ON announcements;
 
@@ -191,6 +202,7 @@ CREATE TRIGGER update_hero_images_updated_at BEFORE UPDATE ON hero_images FOR EA
 CREATE TRIGGER update_infrastructure_updated_at BEFORE UPDATE ON infrastructure FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_historical_events_updated_at BEFORE UPDATE ON historical_events FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_historical_places_updated_at BEFORE UPDATE ON historical_places FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_historical_awards_updated_at BEFORE UPDATE ON historical_awards FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_grampanchayat_info_updated_at BEFORE UPDATE ON grampanchayat_info FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_announcements_updated_at BEFORE UPDATE ON announcements FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -204,6 +216,7 @@ ALTER TABLE hero_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE infrastructure ENABLE ROW LEVEL SECURITY;
 ALTER TABLE historical_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE historical_places ENABLE ROW LEVEL SECURITY;
+ALTER TABLE historical_awards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE grampanchayat_info ENABLE ROW LEVEL SECURITY;
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 
@@ -215,6 +228,7 @@ DROP POLICY IF EXISTS "Public read access" ON hero_images;
 DROP POLICY IF EXISTS "Public read access" ON infrastructure;
 DROP POLICY IF EXISTS "Public read access" ON historical_events;
 DROP POLICY IF EXISTS "Public read access" ON historical_places;
+DROP POLICY IF EXISTS "Public read access" ON historical_awards;
 DROP POLICY IF EXISTS "Public read access" ON grampanchayat_info;
 DROP POLICY IF EXISTS "Public read access" ON announcements;
 
@@ -226,6 +240,7 @@ CREATE POLICY "Public read access" ON hero_images FOR SELECT USING (is_active = 
 CREATE POLICY "Public read access" ON infrastructure FOR SELECT USING (true);
 CREATE POLICY "Public read access" ON historical_events FOR SELECT USING (true);
 CREATE POLICY "Public read access" ON historical_places FOR SELECT USING (true);
+CREATE POLICY "Public read access" ON historical_awards FOR SELECT USING (true);
 CREATE POLICY "Public read access" ON grampanchayat_info FOR SELECT USING (true);
 CREATE POLICY "Public read access" ON announcements FOR SELECT USING (is_active = true);
 `;

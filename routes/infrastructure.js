@@ -3,11 +3,13 @@ const router = express.Router();
 const Infrastructure = require("../models/Infrastructure");
 const auth = require("../middleware/auth");
 const { checkWritePermission } = require("../middleware/checkPermission");
+const { cacheMiddleware } = require("../middleware/cache");
 
 // @route   GET /api/infrastructure
 // @desc    Get all infrastructure
 // @access  Public
-router.get("/", async (req, res) => {
+// @cache   30 seconds
+router.get("/", cacheMiddleware(30), async (req, res) => {
   try {
     const infrastructure = await Infrastructure.findAll();
 

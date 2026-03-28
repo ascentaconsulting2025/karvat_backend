@@ -34,27 +34,48 @@ const Certificate = {
       );
       let currentOrder = maxOrderResult.rows[0].max_order + 1;
 
-      // Insert new certificates without deleting existing ones
-      const insertPromises = certificates.map((cert) => {
-        const query = `
-          INSERT INTO certificates (
-            certificate_name, certificate_description,
-            required_documents, apply_online_url, is_active, "order"
-          )
-          VALUES ($1, $2, $3, $4, $5, $6)
-          RETURNING *
-        `;
-        return client.query(query, [
-          cert.certificateName || "",
-          cert.certificateDescription || "",
-          JSON.stringify(cert.requiredDocuments || []),
-          cert.applyOnlineUrl || null,
-          cert.isActive !== undefined ? cert.isActive : true,
-          currentOrder++,
-        ]);
+      // Insert or Update certificates
+      const upsertPromises = certificates.map((cert) => {
+        if (cert.id) {
+          // Update existing
+          const query = `
+            UPDATE certificates 
+            SET certificate_name = $1, certificate_description = $2, 
+                required_documents = $3, apply_online_url = $4, 
+                is_active = $5, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $6
+            RETURNING *
+          `;
+          return client.query(query, [
+            cert.certificateName || "",
+            cert.certificateDescription || "",
+            JSON.stringify(cert.requiredDocuments || []),
+            cert.applyOnlineUrl || null,
+            cert.isActive !== undefined ? cert.isActive : true,
+            cert.id,
+          ]);
+        } else {
+          // Insert new
+          const query = `
+            INSERT INTO certificates (
+              certificate_name, certificate_description,
+              required_documents, apply_online_url, is_active, "order"
+            )
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *
+          `;
+          return client.query(query, [
+            cert.certificateName || "",
+            cert.certificateDescription || "",
+            JSON.stringify(cert.requiredDocuments || []),
+            cert.applyOnlineUrl || null,
+            cert.isActive !== undefined ? cert.isActive : true,
+            currentOrder++,
+          ]);
+        }
       });
 
-      const results = await Promise.all(insertPromises);
+      const results = await Promise.all(upsertPromises);
       await client.query("COMMIT");
 
       return results.map((r) => {

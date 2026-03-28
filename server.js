@@ -8,18 +8,38 @@ require("dotenv").config();
 const app = express();
 
 // Middleware
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Disable CSP for now to avoid issues, or configure properly
+  })
+);
 app.use(compression());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGINS?.split(",") || [
+
+// Robust CORS configuration
+const allowedOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(",").map(origin => origin.trim()) 
+  : [
       "http://localhost:3000",
       "http://localhost:3001",
       "https://admin.gpkarvat.in",
       "https://www.gpkarvat.in",
-      "https://gpkarvat.in",
-    ],
+      "https://gpkahir.in",
+    ];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked for origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -160,4 +180,3 @@ app.listen(PORT, HOST, () => {
 });
 
 module.exports = app;
-

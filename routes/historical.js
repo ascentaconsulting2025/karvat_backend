@@ -4,11 +4,13 @@ const HistoricalData = require("../models/HistoricalData");
 const auth = require("../middleware/auth");
 const { checkWritePermission } = require("../middleware/checkPermission");
 const { pool } = require("../config/database");
+const { cacheMiddleware } = require("../middleware/cache");
 
 // @route   GET /api/historical
 // @desc    Get historical data
 // @access  Public
-router.get("/", async (req, res) => {
+// @cache   30 seconds
+router.get("/", cacheMiddleware(30), async (req, res) => {
   try {
     let historicalData = await HistoricalData.findAll();
 
