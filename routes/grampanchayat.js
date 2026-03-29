@@ -9,7 +9,7 @@ const { cacheMiddleware } = require("../middleware/cache");
 // @desc    Get grampanchayat info
 // @access  Public
 // @cache   10 minutes (600 seconds)
-router.get("/", cacheMiddleware(600), async (req, res) => {
+router.get("/", cacheMiddleware(), async (req, res) => {
   try {
     let info = await GrampanchayatInfo.find();
 

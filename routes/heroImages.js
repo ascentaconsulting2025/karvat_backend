@@ -10,7 +10,7 @@ const { cacheMiddleware } = require("../middleware/cache");
 
 // Get all hero images (public)
 // @cache   10 minutes (600 seconds)
-router.get("/", cacheMiddleware(600), async (req, res) => {
+router.get("/", cacheMiddleware(), async (req, res) => {
   try {
     const heroImages = await HeroImage.findAll();
     res.json({

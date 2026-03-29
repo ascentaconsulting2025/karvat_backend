@@ -12,7 +12,7 @@ const { cacheMiddleware } = require("../middleware/cache");
 // @desc    Get all website data for static site
 // @access  Public
 // @cache   15 minutes (900 seconds) - comprehensive data
-router.get("/all", cacheMiddleware(900), async (req, res) => {
+router.get("/all", cacheMiddleware(), async (req, res) => {
   try {
     const [
       representatives,
@@ -55,7 +55,7 @@ router.get("/all", cacheMiddleware(900), async (req, res) => {
 // @desc    Get officials for homepage
 // @access  Public
 // @cache   10 minutes (600 seconds)
-router.get("/officials", cacheMiddleware(600), async (req, res) => {
+router.get("/officials", cacheMiddleware(), async (req, res) => {
   try {
     const representatives = await Representative.findAll();
 
@@ -77,7 +77,7 @@ router.get("/officials", cacheMiddleware(600), async (req, res) => {
 // @desc    Get gallery images
 // @access  Public
 // @cache   10 minutes (600 seconds)
-router.get("/gallery", cacheMiddleware(600), async (req, res) => {
+router.get("/gallery", cacheMiddleware(), async (req, res) => {
   try {
     // Get all gallery images (Image.findAll already filters by isActive)
     const images = await Image.findAll("gallery");

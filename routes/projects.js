@@ -8,7 +8,7 @@ const { cacheMiddleware } = require("../middleware/cache");
 // @route   GET /api/projects
 // @desc    Get all projects
 // @access  Public
-router.get("/", cacheMiddleware(600), async (req, res) => {
+router.get("/", cacheMiddleware(), async (req, res) => {
   try {
     const projects = await Project.find();
     res.json({

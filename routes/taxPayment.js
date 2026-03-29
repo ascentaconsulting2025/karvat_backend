@@ -9,7 +9,7 @@ const { cacheMiddleware } = require("../middleware/cache");
 // @route   GET /api/tax-payment
 // @desc    Get tax payment info
 // @access  Public
-router.get("/", cacheMiddleware(600), async (req, res) => {
+router.get("/", cacheMiddleware(), async (req, res) => {
   try {
     const info = await TaxPayment.find();
 

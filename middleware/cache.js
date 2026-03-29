@@ -9,21 +9,24 @@
  * 
  * @param maxAge - Maximum age in seconds (default: 600s = 10 minutes)
  */
-const cacheMiddleware = (maxAge = 600) => {
+const cacheMiddleware = (maxAge = 5) => {
   return (req, res, next) => {
     // Only cache successful GET requests without authentication
     if (req.method === 'GET' && !req.headers.authorization) {
-      // Public cache: CDN can cache, expires in maxAge seconds
+      // Public cache: s-maxage for CDN, max-age for browser
+      // Adding must-revalidate to ensure browser checks with server
       res.set(
         'Cache-Control',
-        `public, max-age=${maxAge}, s-maxage=${maxAge}`
+        `public, max-age=${maxAge}, s-maxage=${maxAge}, must-revalidate`
       );
       
-      // Add ETag and Vary for efficient cache validation and CORS compatibility
-      res.set('Vary', 'Accept-Encoding, Origin');
+      // CRITICAL: Include Authorization in Vary to prevent serving cached public response to authenticated users
+      res.set('Vary', 'Accept-Encoding, Origin, Authorization');
     } else if (req.headers.authorization) {
-      // Never cache authenticated requests
+      // Never cache authenticated requests (Admin actions)
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
     }
     next();
   };

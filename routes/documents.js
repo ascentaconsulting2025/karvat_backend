@@ -9,7 +9,7 @@ const { cacheMiddleware } = require("../middleware/cache");
 // @desc    Get all documents
 // @access  Public
 // @cache   10 minutes (600 seconds)
-router.get("/", cacheMiddleware(600), async (req, res) => {
+router.get("/", cacheMiddleware(), async (req, res) => {
   try {
     const documents = await Document.findAll();
 

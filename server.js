@@ -7,35 +7,23 @@ require("dotenv").config();
 
 const app = express();
 
-// Middleware
-// Robust CORS configuration
-const defaultOrigins = [
-  "https://admin.gpkarvat.in",
-  "https://www.gpkarvat.in",
-  "https://gpkahir.in",
-  "http://localhost:3000",
-  "http://localhost:3001",
-];
-
-const envOrigins = process.env.CORS_ORIGINS 
+// 1. CORS Middleware FIRST
+const allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(",").map(origin => origin.trim()) 
   : [];
 
-// Merge and deduplicate
-const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
-
-// 1. CORS Middleware FIRST
 app.use(
   cors({
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
       
-      const isAllowed = allowedOrigins.indexOf(origin) !== -1 || 
-                       allowedOrigins.includes("*") ||
-                       origin.endsWith(".gpkarvat.in") ||
-                       origin.endsWith(".gpkahir.in") ||
-                       /^http:\/\/localhost:\d+$/.test(origin); // Allow any localhost port in dev
+      const isAllowed = 
+        allowedOrigins.indexOf(origin) !== -1 || 
+        allowedOrigins.includes("*") ||
+        origin.endsWith(".gpkarvat.in") ||
+        origin.endsWith(".gpkahir.in") ||
+        /^http:\/\/localhost:\d+$/.test(origin); // Dynamic: Allow any localhost port in dev
                        
       if (isAllowed) {
         callback(null, true);
